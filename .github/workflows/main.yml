@@ -1,0 +1,33 @@
+name: Java CI with Gradle
+
+on:
+  push:
+	branches: ["main"]
+  pull_request:
+	branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+	runs-on: ubuntu-18.04
+
+	steps:
+	  - uses: actions/checkout@v3
+	  - name: Set up JDK 19
+		uses: graalvm/setup-graalvm@v1
+		with:
+		  version: "22.3.0"
+		  java-version: "19"
+		  components: "native-image"
+		  github-token: ${{ secrets.GITHUB_TOKEN }}
+		  native-image-job-reports: "true"
+	  - name: Build with Gradle
+		uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+		with:
+		  arguments: nativeCompile
+	  - uses: actions/upload-artifact@v3
+		with:
+		  name: Package
+		  path: build/native/nativeCompile
